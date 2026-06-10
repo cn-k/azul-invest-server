@@ -13,6 +13,12 @@ from pathlib import Path
 
 from playwright.async_api import async_playwright
 
+try:
+    from playwright_stealth import stealth_async
+    STEALTH_AVAILABLE = True
+except ImportError:
+    STEALTH_AVAILABLE = False
+
 from db import insert_apartments_batch
 
 logger = logging.getLogger(__name__)
@@ -87,22 +93,36 @@ async def _get_page(p):
         page = await context.new_page()
         return browser, context, page
 
-    # Fallback: local headless Chromium + cookies
-    logger.info("Browser mode: Headless Chromium + cookies.json")
-    browser = await p.chromium.launch(headless=True)
-    context = await browser.new_context(
+    # Headless Chromium + stealth + proxy (Railway modu)
+    logger.info("Browser mode: Headless Chromium + stealth")
+    launch_opts = {"headless": True}
+    browser = await p.chromium.launch(**launch_opts)
+
+    context_opts = dict(
         user_agent=(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/120.0.0.0 Safari/537.36"
         ),
         locale="tr-TR",
+        timezone_id="Europe/Istanbul",
         viewport={"width": 1280, "height": 800},
     )
-    cookies = _load_cookies()
-    if cookies:
-        await context.add_cookies(cookies)
+    if PROXY_SERVER:
+        context_opts["proxy"] = {
+            "server": PROXY_SERVER,
+            **({"username": PROXY_USER} if PROXY_USER else {}),
+            **({"password": PROXY_PASS} if PROXY_PASS else {}),
+        }
+        logger.info("Proxy aktif: %s", PROXY_SERVER)
+
+    context = await browser.new_context(**context_opts)
     page = await context.new_page()
+
+    if STEALTH_AVAILABLE:
+        await stealth_async(page)
+        logger.info("Stealth modu aktif")
+
     return browser, context, page
 
 
@@ -319,16 +339,21 @@ async def scrape_district(
             browser, context, page = await _get_page(p)
             try:
                 await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+                # Cloudflare "Bir dakika lütfen..." challenge otomatik çözülene kadar bekle
                 try:
                     await page.wait_for_selector(
-                        "td.searchResultsLargeThumbnail a[href*='/ilan/']", timeout=10000
+                        "td.searchResultsLargeThumbnail a[href*='/ilan/']", timeout=30000
                     )
                 except Exception:
                     pass
                 await asyncio.sleep(random.uniform(1, 2))
 
+                title = await page.title()
+                logger.info("[%s] Sayfa başlığı: %s", district, title)
                 rows = await page.query_selector_all("tr.searchResultsItem")
                 if not rows:
+                    snippet = (await page.content())[:400]
+                    logger.warning("[%s] Boş sayfa — HTML:\n%s", district, snippet)
                     logger.info("[%s] Boş sayfa — durduruluyor.", district)
                     await page.close()
                     await _close(browser)

@@ -3,7 +3,7 @@
     {
       "name": "ankara",
       "districts": [
-        { "name": "akyurt",             "is_active": false },
+        { "name": "akyurt",             "is_active": true },
         { "name": "altındağ",           "is_active": false },
         { "name": "ayaş",               "is_active": false },
         { "name": "bala",               "is_active": false },
