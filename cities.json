@@ -1,0 +1,33 @@
+{
+  "cities": [
+    {
+      "name": "ankara",
+      "districts": [
+        { "name": "akyurt",             "is_active": false },
+        { "name": "altındağ",           "is_active": false },
+        { "name": "ayaş",               "is_active": false },
+        { "name": "bala",               "is_active": false },
+        { "name": "beypazarı",          "is_active": false },
+        { "name": "çamlıdere",          "is_active": false },
+        { "name": "çankaya",            "is_active": false },
+        { "name": "çubuk",              "is_active": false },
+        { "name": "elmadağ",            "is_active": false },
+        { "name": "etimesgut",          "is_active": true  },
+        { "name": "evren",              "is_active": false },
+        { "name": "gölbaşı",            "is_active": false },
+        { "name": "güdül",              "is_active": false },
+        { "name": "haymana",            "is_active": false },
+        { "name": "kalecik",            "is_active": false },
+        { "name": "keçiören",           "is_active": false },
+        { "name": "kızılcahamam",       "is_active": false },
+        { "name": "mamak",              "is_active": false },
+        { "name": "nallıhan",           "is_active": false },
+        { "name": "polatlı",            "is_active": false },
+        { "name": "pursaklar",          "is_active": false },
+        { "name": "sincan",             "is_active": false },
+        { "name": "şereflikoçhisar",    "is_active": false },
+        { "name": "yenimahalle",        "is_active": false }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+playwright==1.41.2
+psycopg2-binary
+sqlalchemy
+python-dotenv
+apscheduler
+pytz
+Instant

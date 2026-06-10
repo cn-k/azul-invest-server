@@ -1,0 +1,7 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "playwright install chromium && python clock.py"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
